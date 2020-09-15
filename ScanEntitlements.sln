@@ -7,20 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScanEntitlements", "ScanEnt
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Austausch|Any CPU = Austausch|Any CPU
-		Austausch|x64 = Austausch|x64
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
-		Transfer|Any CPU = Transfer|Any CPU
-		Transfer|x64 = Transfer|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Austausch|Any CPU.ActiveCfg = Austausch|Any CPU
-		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Austausch|Any CPU.Build.0 = Austausch|Any CPU
-		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Austausch|x64.ActiveCfg = Austausch|Any CPU
-		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Austausch|x64.Build.0 = Austausch|Any CPU
 		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -29,10 +21,6 @@ Global
 		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Release|x64.ActiveCfg = Release|Any CPU
 		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Release|x64.Build.0 = Release|Any CPU
-		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Transfer|Any CPU.ActiveCfg = Transfer|Any CPU
-		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Transfer|Any CPU.Build.0 = Transfer|Any CPU
-		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Transfer|x64.ActiveCfg = Transfer|Any CPU
-		{1168B4DA-9F93-42B7-8C08-AB7192FC8619}.Transfer|x64.Build.0 = Transfer|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

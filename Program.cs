@@ -17,19 +17,19 @@ namespace ScanEntitlements
         static OIMNTFS.ExcludeNodesDataTable excludeNodes = new OIMNTFS.ExcludeNodesDataTable();
         static OIMNTFSTableAdapters.NodesTableAdapter nodesTable = new OIMNTFSTableAdapters.NodesTableAdapter();
         static OIMNTFSTableAdapters.EntitlementsTableAdapter entitlementsTable = new OIMNTFSTableAdapters.EntitlementsTableAdapter();
+        static SqlCommand getNewNodeID;
         static Boolean createCopy = false;
-        static Boolean writeDatabase = false;
+        static Boolean writeDatabase = true;
 
         static long entitlementcounter = 0;
         static long foldercounter = 0;
         static long protectedcounter = 0;
 
-        static SqlConnection conn = new SqlConnection("Data Source=10.112.139.4;Initial Catalog=oimntfs;User Id = oimntfsdbo; Password = HbLjSEsgv/9ctvj2pYosOJT7UPVpid3qdJP5RPBVbG8=");
-        static SqlCommand getNewNodeID = new SqlCommand("SELECT CAST(ISNULL(IDENT_CURRENT('Nodes'), 0) as bigint)", conn);
         static ADCache ad = null;
         static DirectoryInfo target = null;
         static string targetprefix = null;
         static FileSystemAccessRule nbe2702full = new FileSystemAccessRule("nbe2702", FileSystemRights.FullControl, InheritanceFlags.ContainerInherit | InheritanceFlags.ObjectInherit, PropagationFlags.None, AccessControlType.Allow);
+        static string Environment = "DEV";
 
         static void UpdateTopLevelNodes(OIMNTFS.FilesystemsRow fileSystem)
         {
@@ -238,51 +238,8 @@ namespace ScanEntitlements
                     }
                 }
 
-                if (createCopy) // copy access information to target
-                {
-                    Console.Write("\rLevel {0}, Folders {1}, Entitlements {2}, Protected {3}, set security info...             ", level, foldercounter, entitlementcounter, protectedcounter);
-                    if (objectName != SID) // leave out SIDs
-                    {
-                        try
-                        {
-                            tSecurity.AddAccessRule(new FileSystemAccessRule(objectName, fsar.FileSystemRights, fsar.InheritanceFlags, fsar.PropagationFlags, fsar.AccessControlType));
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine("\rfailed to set security info for {0}: {1}={2}                                             ", objectName, fsar.FileSystemRights.ToString(), fsar.AccessControlType.ToString());
-                            Console.WriteLine("{0}", e.Message);
-                        }
-                    }
-                }
                 Console.Write("\rLevel {0}, Folders {1}, Entitlements {2}, Protected {3}, Runtime {4}               ", level, foldercounter, entitlementcounter, protectedcounter, (DateTime.Now - start).ToString());
             } // end foreach fsar
-
-            if (createCopy)
-            {
-                if (dSecurity.AreAccessRulesProtected)
-                {
-                    try
-                    {
-                        tSecurity.AddAccessRule(nbe2702full);
-                        tSecurity.SetAccessRuleProtection(true, false);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine("\rfailed to set inheritance protection for {0}                   ", targetPath);
-                        Console.WriteLine("{0}", e.Message);
-                    }
-                }
-                Console.Write("\rLevel {0}, Folders {1}, Entitlements {2}, Protected {3}, write security info...              ", level, foldercounter, entitlementcounter, protectedcounter);
-                try
-                {
-                    tInfo.SetAccessControl(tSecurity);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("\rfailed to write security info to {0}                         ", targetPath);
-                    Console.WriteLine("{0}", e.Message);
-                }
-            }
 
             if (level < maxlevel)
             {
@@ -307,19 +264,27 @@ namespace ScanEntitlements
         static void Main(string[] args)
         {
             DateTime start = DateTime.Now;
+            SqlConnection conn;
 
-            if (args.Length > 0)
+            switch (System.Environment.GetEnvironmentVariable("USERDNSDOMAIN"))
             {
-                if (!args[0].StartsWith("\\\\"))
-                {
-                    Console.WriteLine("Please provide target folder in UNC format (\\\\server\\share\\path..).");
-                    return;
-                }
-                else
-                {
-                    target = new DirectoryInfo(args[0]);
-                }
+                case "NRWBANKI.DE": 
+                    Environment = "PROD";
+                    conn = new SqlConnection("Data Source=10.112.133.87;Initial Catalog=oimntfs;User Id = oimntfsdbo; Password = bbGcmcZlkL8FYnsCN4j4");
+                    break;
+                case "NRWBANK.QS":
+                    Environment = "QS";
+                    conn = new SqlConnection("Data Source=10.112.149.4;Initial Catalog=oimntfs;User Id = oimntfsdbo; Password = HbLjSEsgv/9ctvj2pYosOJT7UPVpid3qdJP5RPBVbG8=");
+                    break;
+                case "NRWBANK.DEV":
+                    Environment = "DEV";
+                    conn = new SqlConnection("Data Source=10.112.139.4;Initial Catalog=oimntfs;User Id = oimntfsdbo; Password = HbLjSEsgv/9ctvj2pYosOJT7UPVpid3qdJP5RPBVbG8=");
+                    break;
+                default:
+                    Console.WriteLine("Unknown environment in domain {0}. Exiting.", System.Environment.UserDomainName);
+                    throw (new Exception("Unkown environment."));
             }
+            Console.WriteLine("Running in {0} mode.", Environment);
 
 #if MAPDRIVES
             // Preparation: unmap all network drives
@@ -387,15 +352,10 @@ namespace ScanEntitlements
                 Console.WriteLine("{0}", e.ToString());
             }
 #endif
-            targetprefix = target.FullName;
-            if (!targetprefix.EndsWith("\\"))
-                targetprefix += "\\";
-
-            createCopy = true;
-            Console.WriteLine("Target for folder copy is {0}...", targetprefix);
-
             // Preparation: open database and read information
+
             conn.Open();
+            getNewNodeID = new SqlCommand("SELECT CAST(ISNULL(IDENT_CURRENT('Nodes'), 0) as bigint)", conn);
 
             Console.WriteLine("Reading data tables from database {0}...", conn.Database);
 
